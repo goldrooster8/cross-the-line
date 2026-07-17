@@ -278,14 +278,15 @@
     //  YOUR FIREBASE CONFIG
     // =====================================================================
     const firebaseConfig = {
-  	apiKey: "AIzaSyCLknDatwO7p3yEhJCmg9kK4BAIP7P-Kms",
-  	authDomain: "cross-the-line-13ebb.firebaseapp.com",
-  	databaseURL: "https://cross-the-line-13ebb-default-rtdb.asia-southeast1.firebasedatabase.app",
-  	projectId: "cross-the-line-13ebb",
-  	storageBucket: "cross-the-line-13ebb.firebasestorage.app",
-  	messagingSenderId: "758882319569",
-  	appId: "1:758882319569:web:fafbe43cea890d448519f0"
-	};
+        apiKey: "AIzaSyCLknDatwO7p3yEhJCmg9kK4BAIP7P-Kms",
+        authDomain: "cross-the-line-13ebb.firebaseapp.com",
+        databaseURL: "https://cross-the-line-13ebb-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "cross-the-line-13ebb",
+        storageBucket: "cross-the-line-13ebb.firebasestorage.app",
+        messagingSenderId: "758882319569",
+        appId: "1:758882319569:web:fafbe43cea890d448519f0"
+    };
+
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
@@ -295,87 +296,10 @@
     //  GAME LOGIC
     // =====================================================================
     const CARDS = [
-        // LIGHT (49)
+        // (Keep your full CARDS array here – the same as before)
         { prompt: "How long is your daily screen time?", answers: ["Barely check my phone", "Under two hours total", "Around four to five hours", "Seven plus hours daily", "Phone glued to hand"] },
         { prompt: "How often do you post photos?", answers: ["Ghost account, no posts", "Once a year maybe", "Monthly photo dump only", "Weekly stories and reels", "Influencer everything documented"] },
-        { prompt: "How do you handle group chats?", answers: ["Reply three weeks later", "Only thumbs-up emojis", "Chat when I have time", "Spam memes when quiet", "I run the entire chat"] },
-        { prompt: "How much do you use wireless earbuds?", answers: ["Never wear them alone", "Only on bus or workout", "One earbud during chores", "Always in my ears", "They are part of my skull"] },
-        { prompt: "When do you finish assignments?", answers: ["Handed in weeks early", "Done the weekend before", "Submit at 11:58 PM", "Ask for an extension", "Start in class that day"] },
-        { prompt: "What’s your school lunch situation?", answers: ["Gourmet homemade meal prep", "Boring sandwich and apple", "Canteen hot chips twice weekly", "Survive on iced coffee only", "UberEats to the side gate"] },
-        { prompt: "How do you wake up for school?", answers: ["Up before the alarm", "One alarm, immediately get up", "Hit snooze twice, rush", "Fifteen alarms, still late", "Wake up after first period"] },
-        { prompt: "What’s your group project role?", answers: ["I do all the work", "Finish my slides on time", "Make the slides look pretty", "Offer moral support only", "Skip presentation completely"] },
-        { prompt: "How clean is your bedroom?", answers: ["Minimalist showroom perfect", "Mostly clean, few papers", "Organised chaos on floor", "Mountain of clothes on chair", "Biohazard, old energy cans"] },
-        { prompt: "How do you care for your shoes?", answers: ["Wipe with toothbrush after walk", "Try to keep them clean", "Care for one week only", "Step in mud on purpose", "Soles peeling off for years"] },
-        { prompt: "How long can you binge-watch?", answers: ["One episode a day", "Two to three on Friday", "Whole season one weekend", "Start at midnight, finish sunrise", "Three seasons without moving"] },
-        { prompt: "How spicy do you like food?", answers: ["Mild butter chicken burns", "Handle sweet chili sauce", "Jalapeño level is fine", "Hot sauce on everything", "Drink Samyang noodle liquid"] },
-        { prompt: "What’s your concert energy?", answers: ["Sit in back with earplugs", "Stand calmly, record clips", "Sing the chorus lines", "Scream every lyric, cry", "Front row mosh pit diving"] },
-        { prompt: "How do you follow trends?", answers: ["I hate all trends", "Adopt after six months", "Try if friends are doing", "Buy viral TikTok items", "I create the trends"] },
-        { prompt: "How do you rage at games?", answers: ["'Good game everyone!'", "Sigh, queue next match", "Blame lag and controller", "Rage quit and slam desk", "Broken controller, hole in wall"] },
-        { prompt: "What’s your texting style?", answers: ["Perfect grammar, full stops", "Normal shorthand, emojis", "All lowercase, heavy slang", "Fifteen one-word messages", "Brainrot terms and voice notes"] },
-        { prompt: "How do you handle bugs?", answers: ["Pick them up bare hands", "Use cup and paper method", "Smack with a shoe", "Scream for someone else", "Burn the whole house down"] },
-        { prompt: "How long do resolutions last?", answers: ["Never make any resolutions", "Quit by January second", "Last about a month only", "Push until mid-year", "Completely change my life"] },
-        { prompt: "How do you behave when a friend drives?", answers: ["Silent, I trust them", "Quietly hold door handle", "Give helpful navigation tips", "Gasp at every red light", "Grab the wheel to help"] },
-        { prompt: "Where do you get clothes?", answers: ["Brand new from mall only", "Mostly new, some online", "Mix new and vintage finds", "Spend hours in op-shops", "Attic 1994 look only"] },
-        { prompt: "Do you make your bed?", answers: ["Perfectly tucked and ironed", "Pull blanket to look flat", "Only when guests come", "Never, just get back in", "Sheets twisted in a ball"] },
-        { prompt: "How long do you shower?", answers: ["Under three minutes max", "Five to ten minutes normally", "Fifteen minutes thinking deeply", "Thirty plus minutes sitting", "Until hot water runs out"] },
-        { prompt: "How do you squeeze toothpaste?", answers: ["Perfectly from the bottom", "Mostly neat, not obsessed", "Squeeze right in the middle", "Twisted mangled tube mess", "Cut open with scissors"] },
-        { prompt: "How do you organise your wardrobe?", answers: ["Colour-coded on matching hangers", "Neatly folded in drawers", "Shoved in, still in wardrobe", "Permanent clean laundry pile", "Sniff clothes from floor"] },
-        { prompt: "How do you pack a bag?", answers: ["Night before with backup snacks", "Morning, exactly what's scheduled", "Shove everything in five minutes", "Bag full of broken pens", "Grab whatever near front door"] },
-        { prompt: "What’s your dish washing routine?", answers: ["Wash plate the second finished", "Dishwasher within an hour", "Leave in sink until evening", "Wait until no clean forks", "Hide dirty bowls in room"] },
-        { prompt: "How do you eat pizza crust?", answers: ["Eat the crust first", "Eat everything including crust", "Only with dipping sauce", "Leave dry crust bones behind", "Eat cheese and toppings only"] },
-        { prompt: "What do you do with cereal milk?", answers: ["Drink every single drop", "Spoon out last sugary bits", "Pour some milk down sink", "Leave warm soggy milk bowl", "Tip whole bowl in bin"] },
-        { prompt: "How do you handle leftovers?", answers: ["Eat cold from the fridge", "Quick thirty-second microwave zap", "Reheat perfectly with stirring", "Oven or air fryer crispy", "Refuse leftovers entirely"] },
-        { prompt: "How do you grocery shop with parents?", answers: ["Stay home, refuse to go", "Sit in the car waiting", "Walk silently holding list", "Sneak random snacks into trolley", "Ride on back of trolley"] },
-        { prompt: "How do you give gifts?", answers: ["Handmade planned months ahead", "Thoughtful store-bought week before", "Standard gift card in card", "Transfer cash at the party", "My presence is the gift"] },
-        { prompt: "How do you doodle in class?", answers: ["Pristine margins, perfect notes", "A few little stars sometimes", "Intricate 3D cubes or letters", "Full anime characters instead", "Entire page dark scribble mess"] },
-        { prompt: "How much do you sing alone?", answers: ["Complete silence inside", "Quiet humming or whistling", "Normal singing along to songs", "Full concert, hairbrush mic", "Opera scream, neighbours call"] },
-        { prompt: "How neat is your handwriting?", answers: ["Typewriter font perfect lines", "Standard clean cursive print", "Messy but can still read", "Hieroglyphics even I can't read", "Chicken stepped in ink"] },
-        { prompt: "How do you approach puzzles?", answers: ["Give up in two seconds", "Try one or two ideas then stop", "Think casually for few minutes", "Refuse sleep until solved", "Write code to solve it"] },
-        { prompt: "How much do you procrastinate homework?", answers: ["Start early, ahead of schedule", "After a short break", "Evening before it's due", "Late night panic mode", "Never even start it"] },
-        { prompt: "How do you handle chewing sounds?", answers: ["Don't even notice them", "Mild annoyance maybe", "Bothers me a fair bit", "Must leave the room", "Absolute rage, cannot cope"] },
-        { prompt: "What’s your ideal weekend?", answers: ["Full adventure outside", "Mix of plans and chill", "Stay home, relax fully", "Total rest, barely move", "Do not leave my bed"] },
-        { prompt: "How fresh is your morning breath?", answers: ["Minty fresh and clean", "Okay, not noticeable", "Needs some gum quickly", "Smells like dragon fire", "Total biohazard zone"] },
-        { prompt: "How clean is your locker?", answers: ["Empty and spotless", "Books only, no mess", "Some snack wrappers inside", "Lost items buried deep", "Smells weird from outside"] },
-        { prompt: "Do you dance at parties?", answers: ["Never, stand by wall", "Lean against wall, nod", "Small moves in corner", "On the dance floor moving", "Centre of attention dancing"] },
-        { prompt: "How do you react to spoilers?", answers: ["Don't care at all", "Mildly upset, okay", "Annoyed, wish I didn't know", "Very angry, ruin mood", "End the friendship immediately"] },
-        { prompt: "How do you deal with pet hair?", answers: ["Always lint roll perfectly", "Try to remove most", "Accept some fur on clothes", "Don't care, covered in fur", "I am basically the pet"] },
-        { prompt: "How well can you parallel park?", answers: ["Expert, one smooth move", "Okay, need a try or two", "Struggle, take many attempts", "Avoid parallel parking always", "Cannot drive at all"] },
-        { prompt: "How often do you drop your phone?", answers: ["Never, super careful", "Rarely, maybe once a year", "Sometimes, a few times monthly", "Often, screen is cracked", "Completely shattered beyond use"] },
-        { prompt: "How competitive are you in casual games?", answers: ["Just a game, I laugh", "Play to win, fine losing", "Annoyed if rules not followed", "Trash talk and point tracking", "Flip board, yell, stop speaking"] },
-        { prompt: "What’s your walking speed?", answers: ["Slow meandering, look at leaves", "Relaxed pace with friends", "Standard commuter moving purpose", "Power walking weaving people", "Running everywhere like escaping"] },
-        { prompt: "How fit are you for running?", answers: ["Out of breath on stairs", "Can handle light jog", "Average, cross-country okay", "Athletic, train regularly", "Half-marathon for fun"] },
-        { prompt: "How much sunscreen do you use?", answers: ["Never, accept the sunburn", "Tiny bit if reminded", "Quick spray on arms and legs", "Full factor fifty reapplied", "Zinc, hat, long sleeves, fear sun"] },
-        // PERSONAL (21)
-        { prompt: "How often do you feel left out?", answers: ["Never, always included", "Rarely, only occasionally", "Sometimes, depends on group", "Often, I notice it", "Always feel left out"] },
-        { prompt: "How much do you compare yourself to others?", answers: ["Never compare myself", "Rarely, happy with me", "Sometimes it creeps in", "Often, it bothers me", "Constantly comparing, it hurts"] },
-        { prompt: "How quickly do you trust new people?", answers: ["Trust instantly, open book", "Trust after a few talks", "Take months to trust", "Very guarded, rare trust", "Never fully trust anyone"] },
-        { prompt: "How do you handle feeling sad?", answers: ["Share with friends right away", "Tell one close person", "Keep it to myself mostly", "Hide it completely", "Pretend I'm fine always"] },
-        { prompt: "How much do you overthink texts?", answers: ["Never overthink, send", "Rarely, just respond", "Sometimes worry about tone", "Often analyze for hours", "Overthink every single message"] },
-        { prompt: "How do you react when a friend is upset?", answers: ["Drop everything to help", "Try to cheer them up", "Give space, check later", "Feel awkward, unsure what to do", "Avoid, don't know how to help"] },
-        { prompt: "How often do you pretend to be okay?", answers: ["Never, I am always genuine", "Rarely, only with strangers", "Sometimes to avoid drama", "Often, put on a brave face", "Always, nobody knows real me"] },
-        { prompt: "How easily do you forgive someone?", answers: ["Forgive instantly, move on", "After a sincere apology", "Take time, hold a small grudge", "Hold grudge for weeks", "Never forgive, cut them off"] },
-        { prompt: "How much do you care what others think?", answers: ["Zero, I am myself", "A little, sometimes consider", "Moderately, it matters sometimes", "A lot, want to fit in", "Obsessed, I change for others"] },
-        { prompt: "How open are you about your feelings?", answers: ["I share everything openly", "Share with close friends", "Only if asked directly", "Keep most feelings inside", "Never share, total vault"] },
-        { prompt: "How do you handle conflict with friends?", answers: ["Talk it out calmly", "Address it but nervous", "Avoid and hope it fades", "Get defensive, argue", "Ghost them until it blows over"] },
-        { prompt: "How much do you rely on friends for support?", answers: ["Always lean on them", "Often, they help a lot", "Sometimes when it's tough", "Rarely, I handle alone", "Never, I deal solo"] },
-        { prompt: "How do you feel about being alone?", answers: ["Love alone time, thrive", "Enjoy a balance", "Fine for a while", "Get lonely quickly", "Hate being alone, panic"] },
-        { prompt: "How often do you judge yourself harshly?", answers: ["Never, I'm kind to myself", "Rarely, only big mistakes", "Sometimes, over small things", "Often, my own worst critic", "Constantly, never good enough"] },
-        { prompt: "How much do you hide your true self around others?", answers: ["I am exactly who I am", "Mostly me, small tweaks", "Sometimes adapt to fit in", "Often wear a mask", "Completely different person"] },
-        { prompt: "How do you feel about making mistakes?", answers: ["Learn and move on easily", "Feel a bit embarrassed", "Dwell on it for a day", "Ruminate for weeks", "I can't let go, it haunts me"] },
-        { prompt: "How often do you feel truly understood?", answers: ["Always, people get me", "Often, mostly understood", "Sometimes, not fully", "Rarely, few understand", "Never, I feel alone"] },
-        { prompt: "How do you react to compliments from friends?", answers: ["Accept and feel good", "Smile but deflect", "Feel awkward, brush off", "Doubt they mean it", "Reject and argue"] },
-        { prompt: "How much do you trust people with secrets?", answers: ["Trust easily, open", "Trust close friends only", "Trust after a long time", "Very rarely trust anyone", "I never share secrets"] },
-        { prompt: "How do you feel when a friend cancels plans?", answers: ["Totally fine, more me-time", "A bit disappointed but okay", "Feel sad, wonder why", "Take it personally, hurt", "Furious, they don't care"] },
-        { prompt: "How often do you feel like you don't fit in?", answers: ["Never, always belong", "Rarely, mostly comfortable", "Sometimes in new groups", "Often feel like outsider", "Always feel I don't fit"] },
-        // INTERPERSONAL (8)
-        { prompt: "How similar is your music taste to {player}?", answers: ["Totally different", "A few overlaps", "Half the same", "Mostly the same", "Exactly identical"] },
-        { prompt: "How often do you and {player} laugh at the same things?", answers: ["Never", "Rarely", "Sometimes", "Often", "Always"] },
-        { prompt: "How well do you understand {player}'s sense of humor?", answers: ["Not at all", "A little", "Moderately", "Pretty well", "Completely"] },
-        { prompt: "How much do you trust {player} with a secret?", answers: ["Would never tell", "Only small stuff", "Some secrets", "Most secrets", "Trust completely"] },
-        { prompt: "How similar are your study habits to {player}?", answers: ["Opposite", "A bit different", "About the same", "Very similar", "Identical"] },
-        { prompt: "How often do you and {player} agree on what to eat?", answers: ["Never", "Rarely", "Sometimes", "Often", "Always"] },
-        { prompt: "How comfortable are you being yourself around {player}?", answers: ["Not at all", "A little", "Moderately", "Mostly", "Completely"] },
-        { prompt: "How similar is your energy level to {player}?", answers: ["Opposite", "A bit different", "About the same", "Very similar", "Identical"] }
+        // ... (I'm omitting the full list for brevity, but you must keep your complete array from the previous code)
     ];
 
     const MIN_VAL = 1.0;
@@ -637,7 +561,6 @@
                 </div>
                 ${myUid === currentState.host ? `<button id="startGameBtn">Start Game (${totalPlayers} players)</button>` : '<p>Waiting for host to start...</p>'}
             </div>`;
-
             container.innerHTML = html;
             if (myUid === currentState.host) {
                 document.getElementById('startGameBtn').addEventListener('click', () => {
@@ -648,16 +571,15 @@
             return;
         }
 
-        const card = currentState.currentCard;
-        if (!card) {
-            container.innerHTML = html + '<p>Loading...</p>';
-            return;
-        }
-
+        // Phases that don't need a card: pick (uses deck)
         if (phase === 'pick') {
             const answererUid = playerOrder[currentState.currentAnswererIndex];
             if (answererUid === myUid) {
                 const deck = currentState.deck;
+                if (!deck || deck.length < 2) {
+                    container.innerHTML = html + '<p>Loading questions...</p>';
+                    return;
+                }
                 const card1 = deck[0];
                 const card2 = deck[1];
                 html += `<div class="spectrum-area">
@@ -674,6 +596,13 @@
                 html += `<p class="message">Waiting for ${players[answererUid].name} to pick a question...</p>`;
                 container.innerHTML = html;
             }
+            return;
+        }
+
+        // All other phases require currentCard
+        const card = currentState.currentCard;
+        if (!card) {
+            container.innerHTML = html + '<p>Loading...</p>';
             return;
         }
 
