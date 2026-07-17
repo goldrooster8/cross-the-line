@@ -79,6 +79,9 @@
         .room-code {
             font-size: 1.2rem; font-weight: bold; letter-spacing: 2px; background: #f7d44a; color: #1a1e2b; padding: 2px 8px; border-radius: 8px;
         }
+        .debug-phase {
+            background: #ff4757; color: white; padding: 5px; text-align: center; font-weight: bold; margin-bottom: 5px; border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -421,7 +424,10 @@
         const phase = currentState.phase;
         const players = currentState.players || {};
 
-        let html = '';
+        // Show phase debug banner
+        let debugBanner = `<div class="debug-phase">Phase: ${phase} | My UID: ${myUid ? myUid.substring(0,6) : 'none'} | My Index: ${myIndex} | Players: ${playerOrder.length}</div>`;
+
+        let html = debugBanner;
         html += '<div class="scoreboard">';
         playerOrder.forEach(uid => {
             const p = players[uid];
@@ -452,15 +458,14 @@
         if (phase === 'pick') {
             const answererUid = playerOrder[currentState.currentAnswererIndex];
             if (!answererUid || !players[answererUid]) {
-                container.innerHTML = html + '<p class="message">Waiting for players...</p>';
+                html += '<p class="message">Waiting for players...</p>';
+                container.innerHTML = html;
                 return;
             }
             if (answererUid === myUid) {
                 let deck = currentState.deck;
-                // Apply normalizeArrays again just in case
                 deck = normalizeArrays(deck);
                 console.log('Deck in pick phase:', deck, 'IsArray:', Array.isArray(deck), 'Length:', deck ? deck.length : 0);
-
                 if (!deck || !Array.isArray(deck) || deck.length < 2) {
                     html += `<p style="color:white; background:red; padding:10px;">
                         DEBUG: deck = ${JSON.stringify(deck)}<br>
@@ -490,11 +495,13 @@
 
         const card = currentState.currentCard;
         if (!card) {
-            container.innerHTML = html + '<p>Loading...</p>';
+            html += '<p>Loading... (no currentCard)</p>';
+            container.innerHTML = html;
             return;
         }
 
         if (phase === 'answer') {
+            // ... (rest of the code unchanged, same as before)
             const answererUid = playerOrder[currentState.currentAnswererIndex];
             if (answererUid === myUid) {
                 const halfWidthPercent = BAR_HALF.short * 22.5;
@@ -507,7 +514,6 @@
                 html += buildRulerHTML(`<div id="answerBar" class="answer-bar" style="left:${initialLeft}%; width:${halfWidthPercent * 2}%;"></div>`);
                 html += `<div style="text-align:center; margin-top:10px;"><button id="lockInBtn">🔒 Lock In</button></div></div>`;
                 container.innerHTML = html;
-
                 const barEl = document.getElementById('answerBar');
                 const minLeftPercent = 5 - halfWidthPercent, maxLeftPercent = 95 - halfWidthPercent;
                 let currentSecret = secretLine;
@@ -549,11 +555,9 @@
                             <button class="bar-type-btn selected" data-type="medium">Medium (2pt)</button>
                             <button class="bar-type-btn" data-type="short">Short (3pt)</button>
                         </div>`;
-
                     let selectedType = 'medium', guessCenter = 3.0;
                     function barWidthPercent(type) { return BAR_HALF[type] * 22.5 * 2; }
                     function barLeftPercent(center, type) { return valueToPercent(center) - BAR_HALF[type] * 22.5; }
-
                     let guessLanesHTML = '', rulerHeight = 70, laneHeight = 0, lanePadding = 0;
                     if (currentState.showAllGuesses) {
                         const layout = getLaneLayout(totalGuessers);
@@ -568,7 +572,6 @@
                             guessLanesHTML += `<div class="guess-bar" style="left:${left}%; width:${width}%; top:${top}px; height:${laneHeight - 4}px; background:#aaa; pointer-events:none;">${players[uid].name}</div>`;
                         }
                     }
-
                     const initialWidth = barWidthPercent(selectedType);
                     const initialLeft = barLeftPercent(guessCenter, selectedType);
                     let currentBarStyle = '';
@@ -578,17 +581,14 @@
                     } else {
                         currentBarStyle = `top:8px; bottom:8px;`;
                     }
-
                     html += buildRulerHTML(
                         `<div id="guessBar" class="guess-bar" style="left:${initialLeft}%; width:${initialWidth}%; ${currentBarStyle}">${players[myUid].name}</div>`,
                         guessLanesHTML, rulerHeight
                     );
                     html += `<div style="text-align:center; margin-top:10px;"><button id="placeBarBtn">✅ Place Bar</button></div></div>`;
                     container.innerHTML = html;
-
                     const barEl = document.getElementById('guessBar');
                     const typeBtns = document.querySelectorAll('.bar-type-btn');
-
                     function updateBarDisplay() {
                         const width = barWidthPercent(selectedType);
                         let left = barLeftPercent(guessCenter, selectedType);
@@ -596,7 +596,6 @@
                         barEl.style.width = width + '%'; barEl.style.left = left + '%';
                         barEl.textContent = players[myUid].name;
                     }
-
                     function onBarDrag(leftPercent) {
                         const widthPercent = parseFloat(barEl.style.width);
                         const centerPercent = leftPercent + widthPercent / 2;
@@ -605,9 +604,7 @@
                         guessCenter = newCenter;
                         updateBarDisplay();
                     }
-
                     makeDraggable(barEl, onBarDrag);
-
                     typeBtns.forEach(btn => {
                         btn.addEventListener('click', () => {
                             typeBtns.forEach(b => b.classList.remove('selected'));
@@ -616,7 +613,6 @@
                             updateBarDisplay();
                         });
                     });
-
                     document.getElementById('placeBarBtn').addEventListener('click', () => {
                         const range = computeBarRange(guessCenter, selectedType);
                         roomRef.child('guesses').child(myUid).set({
@@ -642,7 +638,6 @@
             const answererUid = playerOrder[currentState.currentAnswererIndex];
             const totalGuessers = guessQueue.length;
             const colors = ['#fc8181','#68d391','#63b3ed','#f6ad55','#b794f4','#fbb6ce','#4fd1c5','#f6e05e'];
-
             let barsHTML = '', rulerHeight = 70;
             if (currentState.showAllGuesses) {
                 const layout = getLaneLayout(totalGuessers);
@@ -665,11 +660,9 @@
                     barsHTML += `<div class="guess-bar" style="left:${left}%; width:${width}%; background:${color}; pointer-events:none;">${players[uid].name}</div>`;
                 });
             }
-
             const halfWidthPercent = BAR_HALF.short * 22.5;
             const answerLeft = valueToPercent(currentState.secretLine || 3) - halfWidthPercent;
             const answerBarHTML = `<div class="answer-bar" style="left:${answerLeft}%; width:${halfWidthPercent * 2}%; pointer-events:none;"></div>`;
-
             html += `<div class="spectrum-area">
                 <div class="prompt">📋 ${card.prompt}</div>
                 <p style="text-align:center; margin:5px 0;"><strong>Reveal! ${players[answererUid].name}'s line is the red mark.</strong></p>
@@ -685,7 +678,6 @@
                 roundResults += `<div class="result-line"><strong>${players[uid].name}</strong> (${g.barType}): ${hit ? `✅ Hit! +${pts} pt` : '❌ Missed'}</div>`;
             });
             html += roundResults + `</div></div>`;
-
             const winners = playerOrder.filter(uid => (players[uid].score || 0) >= 12);
             if (winners.length > 0) {
                 html += `<div class="winner-banner">🏆 Winner(s): ${winners.map(uid => players[uid].name).join(', ')} reached 12 points! 🏆</div>`;
@@ -699,7 +691,12 @@
                 document.getElementById('nextRoundBtn')?.addEventListener('click', nextRound);
                 document.getElementById('newGameBtn')?.addEventListener('click', resetGame);
             }
+            return;
         }
+
+        // Fallback if unknown phase
+        html += `<p>Unknown phase: ${phase}</p>`;
+        container.innerHTML = html;
     }
 
     // ===== ONLINE ACTIONS =====
