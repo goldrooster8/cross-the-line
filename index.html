@@ -312,6 +312,15 @@
         return code;
     }
 
+    // Fix Firebase array → object issue
+    function ensureDeckIsArray(deck) {
+        if (!deck) return [...CARDS].sort(() => Math.random() - 0.5);
+        if (Array.isArray(deck)) return deck;
+        // Convert object with numeric keys to array
+        const arr = Object.values(deck);
+        return arr.length >= 2 ? arr : [...CARDS].sort(() => Math.random() - 0.5);
+    }
+
     // ===== SETUP =====
     function renderSetup() {
         container.innerHTML = `
@@ -387,7 +396,11 @@
                     container.innerHTML = "<p style='text-align:center;'>Room no longer exists.</p>";
                     return;
                 }
-                playerOrder = Object.keys(currentState.players);
+                // Convert deck to array if needed
+                if (currentState.deck) {
+                    currentState.deck = ensureDeckIsArray(currentState.deck);
+                }
+                playerOrder = Object.keys(currentState.players || {});
                 myIndex = playerOrder.indexOf(myUid);
                 renderGame();
             });
@@ -431,13 +444,21 @@
 
         if (phase === 'pick') {
             const answererUid = playerOrder[currentState.currentAnswererIndex];
+            if (!answererUid || !players[answererUid]) {
+                container.innerHTML = html + '<p class="message">Waiting for players...</p>';
+                return;
+            }
             if (answererUid === myUid) {
-                const deck = currentState.deck;
-                if (!deck || deck.length < 2) {
+                const deck = ensureDeckIsArray(currentState.deck);
+                if (deck.length < 2) {
                     container.innerHTML = html + '<p>Loading questions...</p>';
                     return;
                 }
                 const card1 = deck[0], card2 = deck[1];
+                if (!card1 || !card2) {
+                    container.innerHTML = html + '<p>Loading questions...</p>';
+                    return;
+                }
                 html += `<div class="spectrum-area">
                     <p class="prompt">${players[myUid].name}, pick your question:</p>
                     <div class="pick-area">
@@ -669,12 +690,10 @@
         }
     }
 
-    // ===== ONLINE ACTIONS WITH DEFENSIVE DECK CHECKS =====
+    // ===== ONLINE ACTIONS WITH SAFE DECK OPERATIONS =====
     function startOnlineGame() {
-        let deck = currentState.deck;
-        if (!deck || deck.length < 2) {
-            deck = [...CARDS].sort(() => Math.random() - 0.5);
-        }
+        let deck = ensureDeckIsArray(currentState.deck);
+        if (deck.length < 2) deck = [...CARDS].sort(() => Math.random() - 0.5);
         const randomIndex = Math.floor(Math.random() * playerOrder.length);
         roomRef.update({
             phase: 'pick',
@@ -689,15 +708,16 @@
     }
 
     function selectCardOnline(cardIndex) {
-        let deck = currentState.deck.slice();
+        let deck = ensureDeckIsArray(currentState.deck);
+        if (deck.length < 2) deck = [...CARDS].sort(() => Math.random() - 0.5);
         const chosen = deck.splice(cardIndex, 1)[0];
-        const other = deck.shift();
-        let newDeck = [...deck, other];
+        const other = deck.shift(); // may be undefined if deck had exactly 2
+        let newDeck = [...deck, other].filter(Boolean);
         if (newDeck.length < 2) {
             const fresh = [...CARDS].sort(() => Math.random() - 0.5);
             newDeck = newDeck.concat(fresh);
         }
-        if (chosen.prompt.includes('{player}')) {
+        if (chosen && chosen.prompt.includes('{player}')) {
             const otherPlayers = playerOrder.filter(uid => uid !== myUid);
             const target = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
             chosen.prompt = chosen.prompt.replace('{player}', currentState.players[target].name);
@@ -710,10 +730,8 @@
     }
 
     function nextRound() {
-        let deck = currentState.deck;
-        if (!deck || deck.length < 2) {
-            deck = [...CARDS].sort(() => Math.random() - 0.5);
-        }
+        let deck = ensureDeckIsArray(currentState.deck);
+        if (deck.length < 2) deck = [...CARDS].sort(() => Math.random() - 0.5);
         const nextIndex = (currentState.currentAnswererIndex + 1) % playerOrder.length;
         roomRef.update({
             phase: 'pick',
