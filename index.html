@@ -5,261 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Cross the Line – Online Edition</title>
     <style>
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body {
-            background: #1a1e2b;
-            color: #f0e6d2;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 10px;
+            background: #1a1e2b; color: #f0e6d2; display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 10px;
         }
         .game-container {
-            width: 100%;
-            max-width: 800px;
-            background: #252a3a;
-            border-radius: 24px;
-            padding: 15px 12px;
+            width: 100%; max-width: 800px; background: #252a3a; border-radius: 24px; padding: 15px 12px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
         @media (orientation: landscape) {
-            .game-container {
-                max-width: 95%;
-                padding: 12px 20px;
-            }
+            .game-container { max-width: 95%; padding: 12px 20px; }
             .phrase-panel { height: 52px; }
             .phrase-column { font-size: 0.55rem; }
             .ruler-container { max-height: 300px; }
         }
-        .scoreboard {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 6px;
-            margin: 0 0 8px 0;
-            background: #1e2230;
-            padding: 6px;
-            border-radius: 16px;
-        }
-        .score-chip {
-            background: #2f3547;
-            border-radius: 20px;
-            padding: 4px 10px;
-            font-size: 0.8rem;
-            color: #f0e6d2;
-            font-weight: bold;
-        }
-        .score-chip.active {
-            border: 2px solid #f7d44a;
-            background: #3a4055;
-        }
-        .spectrum-area {
-            background: #2f3547;
-            border-radius: 20px;
-            padding: 10px 10px 15px 10px;
-            margin: 8px 0;
-        }
-        .prompt {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: #f7d44a;
-            text-align: center;
-        }
-        .pick-area {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 10px 0;
-        }
+        .scoreboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0 0 8px; background: #1e2230; padding: 6px; border-radius: 16px; }
+        .score-chip { background: #2f3547; border-radius: 20px; padding: 4px 10px; font-size: 0.8rem; color: #f0e6d2; font-weight: bold; }
+        .score-chip.active { border: 2px solid #f7d44a; background: #3a4055; }
+        .spectrum-area { background: #2f3547; border-radius: 20px; padding: 10px 10px 15px; margin: 8px 0; }
+        .prompt { font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; color: #f7d44a; text-align: center; }
+        .pick-area { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
         .pick-card {
-            background: #1e2230;
-            border: 2px solid #4a5568;
-            border-radius: 16px;
-            padding: 15px 12px;
-            flex: 1 1 220px;
-            cursor: pointer;
-            transition: 0.2s;
-            text-align: center;
-            font-weight: 600;
-            color: #f7d44a;
-            font-size: 0.9rem;
+            background: #1e2230; border: 2px solid #4a5568; border-radius: 16px; padding: 15px 12px;
+            flex: 1 1 220px; cursor: pointer; text-align: center; font-weight: 600; color: #f7d44a; font-size: 0.9rem;
         }
-        .pick-card:hover {
-            border-color: #f7d44a;
-            background: #2a2f3f;
-        }
-        .ruler-wrapper {
-            width: 100%;
-            margin: 8px auto 0;
-        }
+        .pick-card:hover { border-color: #f7d44a; background: #2a2f3f; }
+        .ruler-wrapper { width: 100%; margin: 8px auto 0; }
         .ruler-container {
-            position: relative;
-            width: 100%;
-            background: #1e2230;
-            border-radius: 6px;
-            border: 2px solid #4a5568;
-            user-select: none;
-            touch-action: none;
-            overflow: hidden;
+            position: relative; width: 100%; background: #1e2230; border-radius: 6px; border: 2px solid #4a5568;
+            user-select: none; touch-action: none; overflow: hidden;
         }
-        .ruler-ticks {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-        .tick-mark {
-            position: absolute;
-            bottom: 0;
-            transform: translateX(-50%);
-        }
-        .tick-major {
-            height: 22px;
-            background: #f7d44a;
-            width: 3px;
-        }
-        .tick-minor {
-            height: 10px;
-            background: #cbd5e0;
-            width: 2px;
-        }
-        .phrase-panel {
-            display: flex;
-            background: #ffffff;
-            border-radius: 0 0 8px 8px;
-            margin-top: 2px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            height: 46px;
-            overflow: hidden;
-        }
+        .ruler-ticks { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .tick-mark { position: absolute; bottom: 0; transform: translateX(-50%); }
+        .tick-major { height: 22px; background: #f7d44a; width: 3px; }
+        .tick-minor { height: 10px; background: #cbd5e0; width: 2px; }
+        .phrase-panel { display: flex; background: #fff; border-radius: 0 0 8px 8px; margin-top: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); height: 46px; overflow: hidden; }
         .phrase-column {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-size: 0.5rem;
-            font-weight: 700;
-            color: #1a1e2b;
-            line-height: 1.15;
-            padding: 2px 2px;
-            word-break: break-word;
-            overflow-wrap: break-word;
-            hyphens: auto;
+            flex: 1; display: flex; align-items: center; justify-content: center; text-align: center;
+            font-size: 0.5rem; font-weight: 700; color: #1a1e2b; line-height: 1.15; padding: 2px;
+            word-break: break-word; overflow-wrap: break-word; hyphens: auto;
         }
         .answer-bar {
-            position: absolute;
-            top: 5px;
-            bottom: 5px;
-            background: rgba(255,255,255,0.2);
-            border: 1px dashed rgba(255,255,255,0.5);
-            border-radius: 6px;
-            cursor: ew-resize;
-            z-index: 20;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; top: 5px; bottom: 5px; background: rgba(255,255,255,0.2);
+            border: 1px dashed rgba(255,255,255,0.5); border-radius: 6px; cursor: ew-resize; z-index: 20;
+            display: flex; align-items: center; justify-content: center;
         }
         .answer-bar::after {
-            content: '';
-            position: absolute;
-            top: 2px;
-            bottom: 2px;
-            width: 2px;
-            background: #e53e3e;
-            box-shadow: 0 0 6px #e53e3e;
+            content: ''; position: absolute; top: 2px; bottom: 2px; width: 2px; background: #e53e3e; box-shadow: 0 0 6px #e53e3e;
         }
         .guess-bar {
-            position: absolute;
-            border-radius: 6px;
-            opacity: 0.85;
-            cursor: grab;
-            z-index: 15;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.55rem;
-            font-weight: bold;
-            color: #1a1e2b;
-            background: #63b3ed;
-            border: 2px solid rgba(0,0,0,0.3);
-            min-width: 20px;
+            position: absolute; border-radius: 6px; opacity: 0.85; cursor: grab; z-index: 15;
+            display: flex; align-items: center; justify-content: center; font-size: 0.55rem; font-weight: bold;
+            color: #1a1e2b; background: #63b3ed; border: 2px solid rgba(0,0,0,0.3); min-width: 20px;
         }
         .guess-bar:active { cursor: grabbing; }
-        .bar-type-selector {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            margin: 10px 0 5px;
-            flex-wrap: wrap;
-        }
+        .bar-type-selector { display: flex; gap: 6px; justify-content: center; margin: 10px 0 5px; flex-wrap: wrap; }
         .bar-type-btn {
-            background: #4a5568;
-            color: #f0e6d2;
-            border: 2px solid transparent;
-            padding: 5px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.8rem;
-            transition: 0.2s;
+            background: #4a5568; color: #f0e6d2; border: 2px solid transparent; padding: 5px 12px; border-radius: 20px;
+            cursor: pointer; font-weight: bold; font-size: 0.8rem;
         }
-        .bar-type-btn.selected {
-            background: #f7d44a;
-            color: #1a1e2b;
-            border-color: #f7d44a;
-        }
+        .bar-type-btn.selected { background: #f7d44a; color: #1a1e2b; border-color: #f7d44a; }
         button {
-            background: #f7d44a;
-            border: none;
-            color: #1a1e2b;
-            font-weight: bold;
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: 0.2s;
+            background: #f7d44a; border: none; color: #1a1e2b; font-weight: bold; padding: 8px 16px;
+            border-radius: 30px; cursor: pointer; font-size: 0.85rem;
         }
         button:hover { background: #e6bd2e; }
-        .message {
-            text-align: center;
-            font-size: 1rem;
-            margin: 8px 0;
-            font-weight: 500;
-        }
+        .message { text-align: center; font-size: 1rem; margin: 8px 0; font-weight: 500; }
         .winner-banner {
-            background: #f7d44a;
-            color: #1a1e2b;
-            padding: 8px;
-            border-radius: 16px;
-            font-weight: bold;
-            text-align: center;
-            margin: 8px 0;
+            background: #f7d44a; color: #1a1e2b; padding: 8px; border-radius: 16px; font-weight: bold; text-align: center; margin: 8px 0;
         }
-        .result-line {
-            margin: 4px 0;
-            padding: 4px 8px;
-            background: #2f3547;
-            border-radius: 12px;
-            font-size: 0.8rem;
-        }
+        .result-line { margin: 4px 0; padding: 4px 8px; background: #2f3547; border-radius: 12px; font-size: 0.8rem; }
         .room-code {
-            font-size: 1.2rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            background: #f7d44a;
-            color: #1a1e2b;
-            padding: 2px 8px;
-            border-radius: 8px;
+            font-size: 1.2rem; font-weight: bold; letter-spacing: 2px; background: #f7d44a; color: #1a1e2b; padding: 2px 8px; border-radius: 8px;
         }
     </style>
 </head>
@@ -268,15 +86,12 @@
     <div id="dynamicContent"></div>
 </div>
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
-    // =====================================================================
-    //  FIREBASE CONFIG
-    // =====================================================================
+    // ===== FIREBASE CONFIG =====
     const firebaseConfig = {
         apiKey: "AIzaSyCLknDatwO7p3yEhJCmg9kK4BAIP7P-Kms",
         authDomain: "cross-the-line-13ebb.firebaseapp.com",
@@ -286,14 +101,11 @@
         messagingSenderId: "758882319569",
         appId: "1:758882319569:web:fafbe43cea890d448519f0"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // =====================================================================
-    //  COMPLETE CARD DECK
-    // =====================================================================
+    // ===== COMPLETE CARD DECK =====
     const CARDS = [
         // LIGHT (49)
         { prompt: "How long is your daily screen time?", answers: ["Barely check my phone", "Under two hours total", "Around four to five hours", "Seven plus hours daily", "Phone glued to hand"] },
@@ -378,28 +190,20 @@
         { prompt: "How similar is your energy level to {player}?", answers: ["Opposite", "A bit different", "About the same", "Very similar", "Identical"] }
     ];
 
-    const MIN_VAL = 1.0;
-    const MAX_VAL = 5.0;
+    // ===== CONSTANTS & HELPERS =====
+    const MIN_VAL = 1.0, MAX_VAL = 5.0;
     const BAR_HALF = { long: 0.75, medium: 0.35, short: 0.2 };
     const BAR_POINTS = { long: 1, medium: 2, short: 3 };
-
     function valueToPercent(v) { return 5 + (v - MIN_VAL) * 22.5; }
     function percentToValue(pct) { return MIN_VAL + (pct - 5) / 22.5; }
     function computeBarRange(center, type) { const half = BAR_HALF[type]; return { start: center - half, end: center + half }; }
     function isHit(secret, barStart, barEnd) { return secret >= barStart && secret <= barEnd; }
 
-    // =====================================================================
-    //  ONLINE MULTIPLAYER STATE
-    // =====================================================================
-    let myUid = null;
-    let roomId = null;
-    let roomRef = null;
-    let currentState = null;
-    let playerOrder = [];
-    let myIndex = -1;
-
+    // ===== GLOBAL STATE =====
+    let myUid = null, roomId = null, roomRef = null, currentState = null, playerOrder = [], myIndex = -1;
     const container = document.getElementById('dynamicContent');
 
+    // ===== AUTH =====
     auth.signInAnonymously().then(() => {
         myUid = auth.currentUser.uid;
         renderSetup();
@@ -407,6 +211,7 @@
         container.innerHTML = `<p style="text-align:center;">Authentication error: ${error.message}</p>`;
     });
 
+    // ===== RENDERING HELPERS =====
     function buildRulerHTML(extraInner = '', guessLanes = null, rulerHeight = 70) {
         let ticksHTML = '';
         for (let v = 1; v <= 5; v++) {
@@ -503,12 +308,11 @@
     function generateRoomCode() {
         const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         let code = '';
-        for (let i = 0; i < 5; i++) {
-            code += letters.charAt(Math.floor(Math.random() * letters.length));
-        }
+        for (let i = 0; i < 5; i++) code += letters.charAt(Math.floor(Math.random() * letters.length));
         return code;
     }
 
+    // ===== SETUP =====
     function renderSetup() {
         container.innerHTML = `
             <div style="text-align:center;">
@@ -529,7 +333,9 @@
         document.getElementById('createRoomBtn').addEventListener('click', () => {
             const roomCode = generateRoomCode();
             const shuffledDeck = [...CARDS].sort(() => Math.random() - 0.5);
-            const roomData = {
+            roomRef = db.ref(`rooms/${roomCode}`);
+            roomId = roomCode;
+            roomRef.set({
                 phase: 'lobby',
                 host: myUid,
                 players: {},
@@ -543,12 +349,7 @@
                 deck: shuffledDeck,
                 roundCount: 0,
                 roomCode: roomCode
-            };
-            roomRef = db.ref(`rooms/${roomCode}`);
-            roomId = roomCode;
-            roomRef.set(roomData).then(() => {
-                enterName();
-            });
+            }).then(() => enterName());
         });
 
         document.getElementById('joinRoomBtn').addEventListener('click', () => {
@@ -559,8 +360,7 @@
             roomRef.once('value', (snap) => {
                 if (!snap.exists()) {
                     alert("Room not found");
-                    roomRef = null;
-                    roomId = null;
+                    roomRef = null; roomId = null;
                 } else {
                     enterName();
                 }
@@ -569,11 +369,8 @@
     }
 
     function enterName() {
-        const setupArea = document.getElementById('setupArea');
-        const nameEntry = document.getElementById('nameEntry');
-        if (setupArea) setupArea.style.display = 'none';
-        if (nameEntry) nameEntry.style.display = 'block';
-
+        document.getElementById('setupArea').style.display = 'none';
+        document.getElementById('nameEntry').style.display = 'block';
         document.getElementById('submitNameBtn').addEventListener('click', () => {
             const name = document.getElementById('playerNameInput').value.trim() || 'Player';
             joinRoom(name);
@@ -582,9 +379,7 @@
 
     function joinRoom(name) {
         roomRef.child('players').child(myUid).set({
-            name: name,
-            score: 0,
-            isAnswerer: false
+            name: name, score: 0, isAnswerer: false
         }).then(() => {
             roomRef.on('value', (snapshot) => {
                 currentState = snapshot.val();
@@ -596,19 +391,17 @@
                 myIndex = playerOrder.indexOf(myUid);
                 renderGame();
             });
-
             roomRef.child(`players/${myUid}`).onDisconnect().remove();
         });
     }
 
+    // ===== GAME RENDERING =====
     function renderGame() {
         if (!currentState) return;
         const phase = currentState.phase;
         const players = currentState.players || {};
-        const totalPlayers = playerOrder.length;
 
         let html = '';
-
         html += '<div class="scoreboard">';
         playerOrder.forEach(uid => {
             const p = players[uid];
@@ -624,19 +417,18 @@
                 <div class="lobby-player-list">
                     ${playerOrder.map(uid => `<span>${players[uid].name}</span>`).join(' ')}
                 </div>
-                ${myUid === currentState.host ? `<button id="startGameBtn">Start Game (${totalPlayers} players)</button>` : '<p>Waiting for host to start...</p>'}
+                ${myUid === currentState.host ? `<button id="startGameBtn">Start Game (${playerOrder.length} players)</button>` : '<p>Waiting for host to start...</p>'}
             </div>`;
             container.innerHTML = html;
             if (myUid === currentState.host) {
                 document.getElementById('startGameBtn').addEventListener('click', () => {
-                    if (totalPlayers < 2) return alert("Need at least 2 players");
+                    if (playerOrder.length < 2) return alert("Need at least 2 players");
                     startOnlineGame();
                 });
             }
             return;
         }
 
-        // PICK phase – doesn't need a card, just the deck
         if (phase === 'pick') {
             const answererUid = playerOrder[currentState.currentAnswererIndex];
             if (answererUid === myUid) {
@@ -645,8 +437,7 @@
                     container.innerHTML = html + '<p>Loading questions...</p>';
                     return;
                 }
-                const card1 = deck[0];
-                const card2 = deck[1];
+                const card1 = deck[0], card2 = deck[1];
                 html += `<div class="spectrum-area">
                     <p class="prompt">${players[myUid].name}, pick your question:</p>
                     <div class="pick-area">
@@ -664,7 +455,6 @@
             return;
         }
 
-        // All other phases need currentCard
         const card = currentState.currentCard;
         if (!card) {
             container.innerHTML = html + '<p>Loading...</p>';
@@ -686,10 +476,8 @@
                 container.innerHTML = html;
 
                 const barEl = document.getElementById('answerBar');
-                const minLeftPercent = 5 - halfWidthPercent;
-                const maxLeftPercent = 95 - halfWidthPercent;
+                const minLeftPercent = 5 - halfWidthPercent, maxLeftPercent = 95 - halfWidthPercent;
                 let currentSecret = secretLine;
-
                 function updateSecretFromLeft(leftPercent) {
                     const centerPercent = leftPercent + halfWidthPercent;
                     let newVal = percentToValue(centerPercent);
@@ -697,7 +485,6 @@
                     currentSecret = newVal;
                 }
                 makeDraggable(barEl, updateSecretFromLeft, minLeftPercent, maxLeftPercent);
-
                 document.getElementById('lockInBtn').addEventListener('click', () => {
                     roomRef.update({
                         secretLine: currentSecret,
@@ -730,26 +517,20 @@
                             <button class="bar-type-btn" data-type="short">Short (3pt)</button>
                         </div>`;
 
-                    let selectedType = 'medium';
-                    let guessCenter = 3.0;
+                    let selectedType = 'medium', guessCenter = 3.0;
                     function barWidthPercent(type) { return BAR_HALF[type] * 22.5 * 2; }
                     function barLeftPercent(center, type) { return valueToPercent(center) - BAR_HALF[type] * 22.5; }
 
-                    let guessLanesHTML = '';
-                    let rulerHeight = 70;
-                    let laneHeight = 0, lanePadding = 0;
+                    let guessLanesHTML = '', rulerHeight = 70, laneHeight = 0, lanePadding = 0;
                     if (currentState.showAllGuesses) {
                         const layout = getLaneLayout(totalGuessers);
-                        rulerHeight = layout.rulerHeight;
-                        laneHeight = layout.laneHeight;
-                        lanePadding = layout.lanePadding;
+                        rulerHeight = layout.rulerHeight; laneHeight = layout.laneHeight; lanePadding = layout.lanePadding;
                         const guesses = currentState.guesses || {};
                         for (let i = 0; i < step; i++) {
                             const uid = guessQueue[i];
                             const g = guesses[uid];
                             if (!g) continue;
-                            const left = valueToPercent(g.rangeStart);
-                            const width = (g.rangeEnd - g.rangeStart) * 22.5;
+                            const left = valueToPercent(g.rangeStart), width = (g.rangeEnd - g.rangeStart) * 22.5;
                             const top = rulerHeight - lanePadding - (i + 1) * laneHeight + 4;
                             guessLanesHTML += `<div class="guess-bar" style="left:${left}%; width:${width}%; top:${top}px; height:${laneHeight - 4}px; background:#aaa; pointer-events:none;">${players[uid].name}</div>`;
                         }
@@ -767,8 +548,7 @@
 
                     html += buildRulerHTML(
                         `<div id="guessBar" class="guess-bar" style="left:${initialLeft}%; width:${initialWidth}%; ${currentBarStyle}">${players[myUid].name}</div>`,
-                        guessLanesHTML,
-                        rulerHeight
+                        guessLanesHTML, rulerHeight
                     );
                     html += `<div style="text-align:center; margin-top:10px;"><button id="placeBarBtn">✅ Place Bar</button></div></div>`;
                     container.innerHTML = html;
@@ -780,8 +560,7 @@
                         const width = barWidthPercent(selectedType);
                         let left = barLeftPercent(guessCenter, selectedType);
                         left = Math.max(0, Math.min(100 - width, left));
-                        barEl.style.width = width + '%';
-                        barEl.style.left = left + '%';
+                        barEl.style.width = width + '%'; barEl.style.left = left + '%';
                         barEl.textContent = players[myUid].name;
                     }
 
@@ -808,16 +587,11 @@
                     document.getElementById('placeBarBtn').addEventListener('click', () => {
                         const range = computeBarRange(guessCenter, selectedType);
                         roomRef.child('guesses').child(myUid).set({
-                            playerIndex: myIndex,
-                            barType: selectedType,
-                            center: guessCenter,
-                            rangeStart: range.start,
-                            rangeEnd: range.end
+                            playerIndex: myIndex, barType: selectedType, center: guessCenter,
+                            rangeStart: range.start, rangeEnd: range.end
                         });
                         roomRef.child('currentGuesserStep').set(step + 1);
-                        if (step + 1 >= guessQueue.length) {
-                            roomRef.child('phase').set('reveal');
-                        }
+                        if (step + 1 >= guessQueue.length) roomRef.child('phase').set('reveal');
                     });
                 } else {
                     html += `<p class="message">Waiting for ${players[currentGuesserUid].name} to place their guess...</p>`;
@@ -834,20 +608,17 @@
             const guesses = currentState.guesses || {};
             const answererUid = playerOrder[currentState.currentAnswererIndex];
             const totalGuessers = guessQueue.length;
-            const colors = ['#fc8181', '#68d391', '#63b3ed', '#f6ad55', '#b794f4', '#fbb6ce', '#4fd1c5', '#f6e05e'];
+            const colors = ['#fc8181','#68d391','#63b3ed','#f6ad55','#b794f4','#fbb6ce','#4fd1c5','#f6e05e'];
 
-            let barsHTML = '';
-            let rulerHeight = 70;
+            let barsHTML = '', rulerHeight = 70;
             if (currentState.showAllGuesses) {
                 const layout = getLaneLayout(totalGuessers);
                 rulerHeight = layout.rulerHeight;
-                const laneHeight = layout.laneHeight;
-                const lanePadding = layout.lanePadding;
+                const laneHeight = layout.laneHeight, lanePadding = layout.lanePadding;
                 guessQueue.forEach((uid, i) => {
                     const g = guesses[uid];
                     if (!g) return;
-                    const left = valueToPercent(g.rangeStart);
-                    const width = (g.rangeEnd - g.rangeStart) * 22.5;
+                    const left = valueToPercent(g.rangeStart), width = (g.rangeEnd - g.rangeStart) * 22.5;
                     const color = colors[playerOrder.indexOf(uid) % colors.length];
                     const top = rulerHeight - lanePadding - (i + 1) * laneHeight + 4;
                     barsHTML += `<div class="guess-bar" style="left:${left}%; width:${width}%; top:${top}px; height:${laneHeight - 4}px; background:${color}; pointer-events:none;">${players[uid].name}</div>`;
@@ -856,8 +627,7 @@
                 guessQueue.forEach(uid => {
                     const g = guesses[uid];
                     if (!g) return;
-                    const left = valueToPercent(g.rangeStart);
-                    const width = (g.rangeEnd - g.rangeStart) * 22.5;
+                    const left = valueToPercent(g.rangeStart), width = (g.rangeEnd - g.rangeStart) * 22.5;
                     const color = colors[playerOrder.indexOf(uid) % colors.length];
                     barsHTML += `<div class="guess-bar" style="left:${left}%; width:${width}%; background:${color}; pointer-events:none;">${players[uid].name}</div>`;
                 });
@@ -873,7 +643,6 @@
                 ${buildRulerHTML(answerBarHTML + barsHTML, null, rulerHeight)}
                 <div style="margin-top:15px;">
             `;
-
             let roundResults = '';
             guessQueue.forEach(uid => {
                 const g = guesses[uid];
@@ -887,18 +656,12 @@
             const winners = playerOrder.filter(uid => (players[uid].score || 0) >= 12);
             if (winners.length > 0) {
                 html += `<div class="winner-banner">🏆 Winner(s): ${winners.map(uid => players[uid].name).join(', ')} reached 12 points! 🏆</div>`;
-                if (myUid === currentState.host) {
-                    html += `<button id="newGameBtn">Play Again</button>`;
-                }
+                if (myUid === currentState.host) html += `<button id="newGameBtn">Play Again</button>`;
             } else {
-                if (myUid === currentState.host) {
-                    html += `<button id="nextRoundBtn">Next Round ▶</button>`;
-                } else {
-                    html += `<p>Waiting for host to start next round...</p>`;
-                }
+                if (myUid === currentState.host) html += `<button id="nextRoundBtn">Next Round ▶</button>`;
+                else html += `<p>Waiting for host to start next round...</p>`;
             }
             container.innerHTML = html;
-
             if (myUid === currentState.host) {
                 document.getElementById('nextRoundBtn')?.addEventListener('click', nextRound);
                 document.getElementById('newGameBtn')?.addEventListener('click', resetGame);
@@ -906,7 +669,12 @@
         }
     }
 
+    // ===== ONLINE ACTIONS WITH DEFENSIVE DECK CHECKS =====
     function startOnlineGame() {
+        let deck = currentState.deck;
+        if (!deck || deck.length < 2) {
+            deck = [...CARDS].sort(() => Math.random() - 0.5);
+        }
         const randomIndex = Math.floor(Math.random() * playerOrder.length);
         roomRef.update({
             phase: 'pick',
@@ -915,15 +683,20 @@
             guesses: {},
             guessQueue: [],
             currentGuesserStep: 0,
-            currentCard: null
+            currentCard: null,
+            deck: deck
         });
     }
 
     function selectCardOnline(cardIndex) {
-        const deck = currentState.deck.slice();
+        let deck = currentState.deck.slice();
         const chosen = deck.splice(cardIndex, 1)[0];
         const other = deck.shift();
-        const newDeck = [...deck, other];
+        let newDeck = [...deck, other];
+        if (newDeck.length < 2) {
+            const fresh = [...CARDS].sort(() => Math.random() - 0.5);
+            newDeck = newDeck.concat(fresh);
+        }
         if (chosen.prompt.includes('{player}')) {
             const otherPlayers = playerOrder.filter(uid => uid !== myUid);
             const target = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
@@ -937,6 +710,10 @@
     }
 
     function nextRound() {
+        let deck = currentState.deck;
+        if (!deck || deck.length < 2) {
+            deck = [...CARDS].sort(() => Math.random() - 0.5);
+        }
         const nextIndex = (currentState.currentAnswererIndex + 1) % playerOrder.length;
         roomRef.update({
             phase: 'pick',
@@ -945,7 +722,8 @@
             guesses: {},
             guessQueue: [],
             currentGuesserStep: 0,
-            currentCard: null
+            currentCard: null,
+            deck: deck
         });
     }
 
