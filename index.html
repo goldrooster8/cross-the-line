@@ -208,14 +208,11 @@
         if (Array.isArray(obj)) return obj;
         if (obj && typeof obj === 'object') {
             const keys = Object.keys(obj);
-            // Check if it's a Firebase array-like object (all keys are non-negative integers)
             if (keys.length > 0 && keys.every(k => String(Number(k)) === k && Number(k) >= 0 && Number.isInteger(Number(k)))) {
-                // Convert to a real array, preserving order
                 const arr = [];
                 keys.sort((a,b) => Number(a) - Number(b)).forEach(k => { arr.push(normalizeArrays(obj[k])); });
                 return arr;
             }
-            // Otherwise, recursively normalize properties
             for (const key in obj) {
                 obj[key] = normalizeArrays(obj[key]);
             }
@@ -409,6 +406,7 @@
                 }
                 // Normalize all arrays that Firebase turned into objects
                 currentState = normalizeArrays(currentState);
+                console.log('State after normalization:', currentState);
                 playerOrder = Object.keys(currentState.players || {});
                 myIndex = playerOrder.indexOf(myUid);
                 renderGame();
@@ -458,9 +456,18 @@
                 return;
             }
             if (answererUid === myUid) {
-                const deck = currentState.deck; // already normalized to array
+                let deck = currentState.deck;
+                // Apply normalizeArrays again just in case
+                deck = normalizeArrays(deck);
+                console.log('Deck in pick phase:', deck, 'IsArray:', Array.isArray(deck), 'Length:', deck ? deck.length : 0);
+
                 if (!deck || !Array.isArray(deck) || deck.length < 2) {
-                    container.innerHTML = html + '<p>Loading questions...</p>';
+                    html += `<p style="color:white; background:red; padding:10px;">
+                        DEBUG: deck = ${JSON.stringify(deck)}<br>
+                        isArray = ${Array.isArray(deck)}<br>
+                        length = ${deck ? deck.length : 'N/A'}
+                    </p>`;
+                    container.innerHTML = html;
                     return;
                 }
                 const card1 = deck[0], card2 = deck[1];
@@ -695,7 +702,7 @@
         }
     }
 
-    // ===== ONLINE ACTIONS (deck is always a proper array thanks to normalization) =====
+    // ===== ONLINE ACTIONS =====
     function startOnlineGame() {
         let deck = currentState.deck || [];
         if (!Array.isArray(deck) || deck.length < 2) {
