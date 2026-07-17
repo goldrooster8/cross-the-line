@@ -11,13 +11,13 @@
             min-height: 100vh; margin: 0; padding: 10px;
         }
         .game-container {
-            width: 100%; max-width: 800px; background: #252a3a; border-radius: 24px; padding: 15px 12px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            width: 100%; max-width: 800px; background: #252a3a; border-radius: 24px; padding: 15px 12px 5px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); display: flex; flex-direction: column;
         }
         @media (orientation: landscape) {
-            .game-container { max-width: 95%; padding: 12px 20px; }
-            .phrase-panel { height: 52px; }
-            .phrase-column { font-size: 0.55rem; }
+            .game-container { max-width: 95%; padding: 12px 20px 5px; }
+            .phrase-panel { height: 80px; }
+            .phrase-column { font-size: 0.95rem; }
             .ruler-container { max-height: 300px; }
         }
         .scoreboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0 0 8px; background: #1e2230; padding: 6px; border-radius: 16px; }
@@ -40,10 +40,13 @@
         .tick-mark { position: absolute; bottom: 0; transform: translateX(-50%); }
         .tick-major { height: 22px; background: #f7d44a; width: 3px; }
         .tick-minor { height: 10px; background: #cbd5e0; width: 2px; }
-        .phrase-panel { display: flex; background: #fff; border-radius: 0 0 8px 8px; margin-top: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); height: 46px; overflow: hidden; }
+        .phrase-panel {
+            display: flex; background: #fff; border-radius: 0 0 8px 8px; margin-top: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3); height: 70px; overflow: hidden;
+        }
         .phrase-column {
             flex: 1; display: flex; align-items: center; justify-content: center; text-align: center;
-            font-size: 0.5rem; font-weight: 700; color: #1a1e2b; line-height: 1.15; padding: 2px;
+            font-size: 0.85rem; font-weight: 700; color: #1a1e2b; line-height: 1.2; padding: 2px;
             word-break: break-word; overflow-wrap: break-word; hyphens: auto;
         }
         .answer-bar {
@@ -79,14 +82,34 @@
         .room-code {
             font-size: 1.2rem; font-weight: bold; letter-spacing: 2px; background: #f7d44a; color: #1a1e2b; padding: 2px 8px; border-radius: 8px;
         }
-        .debug-phase {
-            background: #ff4757; color: white; padding: 5px; text-align: center; font-weight: bold; margin-bottom: 5px; border-radius: 8px;
+        .rules-footer {
+            background: #1e2230; border-radius: 12px; margin-top: 8px; padding: 8px; font-size: 0.7rem;
+            color: #cbd5e0; max-height: 80px; overflow-y: auto; transition: max-height 0.3s ease;
         }
+        .rules-footer.expanded { max-height: 300px; }
+        .rules-footer-btn {
+            background: transparent; border: 1px solid #f7d44a; color: #f7d44a; padding: 2px 12px;
+            border-radius: 12px; cursor: pointer; font-size: 0.65rem; margin-bottom: 4px;
+        }
+        .rules-footer ul { margin: 4px 0; padding-left: 20px; }
+        .rules-footer li { margin-bottom: 2px; }
     </style>
 </head>
 <body>
 <div class="game-container" id="gameContainer">
     <div id="dynamicContent"></div>
+    <div class="rules-footer" id="rulesFooter">
+        <button class="rules-footer-btn" onclick="toggleRules()">📜 Rules</button>
+        <div id="rulesText">
+            <strong>How to play:</strong>
+            <ul>
+                <li>Each round one player (the answerer) secretly chooses a spot (1–5) on the ruler.</li>
+                <li>Other players guess that spot by placing a bar (short/medium/long). Shorter = more points but harder.</li>
+                <li>After all guesses, the true line is revealed. If the line falls inside your bar, you score (long=1, medium=2, short=3).</li>
+                <li>Game ends after 10 rounds. Highest total wins!</li>
+            </ul>
+        </div>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -94,6 +117,11 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
+    window.toggleRules = function() {
+        const footer = document.getElementById('rulesFooter');
+        footer.classList.toggle('expanded');
+    };
+
     // ===== FIREBASE CONFIG =====
     const firebaseConfig = {
         apiKey: "AIzaSyCLknDatwO7p3yEhJCmg9kK4BAIP7P-Kms",
@@ -193,7 +221,6 @@
         { prompt: "How similar is your energy level to {player}?", answers: ["Opposite", "A bit different", "About the same", "Very similar", "Identical"] }
     ];
 
-    // ===== CONSTANTS & HELPERS =====
     const MIN_VAL = 1.0, MAX_VAL = 5.0;
     const BAR_HALF = { long: 0.75, medium: 0.35, short: 0.2 };
     const BAR_POINTS = { long: 1, medium: 2, short: 3 };
@@ -201,10 +228,6 @@
     function percentToValue(pct) { return MIN_VAL + (pct - 5) / 22.5; }
     function computeBarRange(center, type) { const half = BAR_HALF[type]; return { start: center - half, end: center + half }; }
     function isHit(secret, barStart, barEnd) { return secret >= barStart && secret <= barEnd; }
-
-    // ===== GLOBAL STATE =====
-    let myUid = null, roomId = null, roomRef = null, currentState = null, playerOrder = [], myIndex = -1;
-    const container = document.getElementById('dynamicContent');
 
     // ===== FIREBASE ARRAY NORMALIZATION =====
     function normalizeArrays(obj) {
@@ -223,7 +246,10 @@
         return obj;
     }
 
-    // ===== AUTH =====
+    // ===== GLOBAL STATE =====
+    let myUid = null, roomId = null, roomRef = null, currentState = null, playerOrder = [], myIndex = -1;
+    const container = document.getElementById('dynamicContent');
+
     auth.signInAnonymously().then(() => {
         myUid = auth.currentUser.uid;
         renderSetup();
@@ -318,7 +344,12 @@
     }
 
     function getLaneLayout(totalGuessers) {
-        if (totalGuessers <= 1) return { rulerHeight: 70, laneHeight: 0, lanePadding: 0 };
+        if (totalGuessers <= 1) {
+            const rulerHeight = 70;
+            const lanePadding = 10;
+            const laneHeight = rulerHeight - lanePadding * 2;
+            return { rulerHeight, laneHeight, lanePadding };
+        }
         const rulerHeight = totalGuessers <= 3 ? 200 : 260;
         const lanePadding = 10;
         const laneHeight = (rulerHeight - lanePadding * 2) / totalGuessers;
@@ -407,9 +438,7 @@
                     container.innerHTML = "<p style='text-align:center;'>Room no longer exists.</p>";
                     return;
                 }
-                // Normalize all arrays that Firebase turned into objects
                 currentState = normalizeArrays(currentState);
-                console.log('State after normalization:', currentState);
                 playerOrder = Object.keys(currentState.players || {});
                 myIndex = playerOrder.indexOf(myUid);
                 renderGame();
@@ -424,10 +453,7 @@
         const phase = currentState.phase;
         const players = currentState.players || {};
 
-        // Show phase debug banner
-        let debugBanner = `<div class="debug-phase">Phase: ${phase} | My UID: ${myUid ? myUid.substring(0,6) : 'none'} | My Index: ${myIndex} | Players: ${playerOrder.length}</div>`;
-
-        let html = debugBanner;
+        let html = '';
         html += '<div class="scoreboard">';
         playerOrder.forEach(uid => {
             const p = players[uid];
@@ -455,6 +481,7 @@
             return;
         }
 
+        // ---- PICK PHASE ----
         if (phase === 'pick') {
             const answererUid = playerOrder[currentState.currentAnswererIndex];
             if (!answererUid || !players[answererUid]) {
@@ -463,15 +490,9 @@
                 return;
             }
             if (answererUid === myUid) {
-                let deck = currentState.deck;
-                deck = normalizeArrays(deck);
-                console.log('Deck in pick phase:', deck, 'IsArray:', Array.isArray(deck), 'Length:', deck ? deck.length : 0);
+                const deck = currentState.deck;
                 if (!deck || !Array.isArray(deck) || deck.length < 2) {
-                    html += `<p style="color:white; background:red; padding:10px;">
-                        DEBUG: deck = ${JSON.stringify(deck)}<br>
-                        isArray = ${Array.isArray(deck)}<br>
-                        length = ${deck ? deck.length : 'N/A'}
-                    </p>`;
+                    html += '<p>Loading questions...</p>';
                     container.innerHTML = html;
                     return;
                 }
@@ -495,14 +516,15 @@
 
         const card = currentState.currentCard;
         if (!card) {
-            html += '<p>Loading... (no currentCard)</p>';
-            container.innerHTML = html;
+            container.innerHTML = html + '<p>Loading...</p>';
             return;
         }
 
+        const answererUid = playerOrder[currentState.currentAnswererIndex];
+        const answererName = players[answererUid] ? players[answererUid].name : 'Unknown';
+        const roundNum = currentState.roundCount || 0;
+
         if (phase === 'answer') {
-            // ... (rest of the code unchanged, same as before)
-            const answererUid = playerOrder[currentState.currentAnswererIndex];
             if (answererUid === myUid) {
                 const halfWidthPercent = BAR_HALF.short * 22.5;
                 const secretLine = currentState.secretLine || 3.0;
@@ -514,6 +536,7 @@
                 html += buildRulerHTML(`<div id="answerBar" class="answer-bar" style="left:${initialLeft}%; width:${halfWidthPercent * 2}%;"></div>`);
                 html += `<div style="text-align:center; margin-top:10px;"><button id="lockInBtn">🔒 Lock In</button></div></div>`;
                 container.innerHTML = html;
+
                 const barEl = document.getElementById('answerBar');
                 const minLeftPercent = 5 - halfWidthPercent, maxLeftPercent = 95 - halfWidthPercent;
                 let currentSecret = secretLine;
@@ -533,13 +556,15 @@
                     });
                 });
             } else {
-                html += `<p class="message">Waiting for ${players[answererUid].name} to set the line...</p>`;
+                html += `<p class="message">Waiting for ${answererName} to set the line...</p>`;
                 container.innerHTML = html;
             }
             return;
         }
 
         if (phase === 'guess') {
+            html += `<p style="text-align:center; font-size:0.9rem; color:#f7d44a;">Answerer: ${answererName} | Round ${roundNum+1}/10</p>`;
+
             const guessQueue = currentState.guessQueue;
             const step = currentState.currentGuesserStep;
             if (step < guessQueue.length) {
@@ -555,9 +580,11 @@
                             <button class="bar-type-btn selected" data-type="medium">Medium (2pt)</button>
                             <button class="bar-type-btn" data-type="short">Short (3pt)</button>
                         </div>`;
+
                     let selectedType = 'medium', guessCenter = 3.0;
                     function barWidthPercent(type) { return BAR_HALF[type] * 22.5 * 2; }
                     function barLeftPercent(center, type) { return valueToPercent(center) - BAR_HALF[type] * 22.5; }
+
                     let guessLanesHTML = '', rulerHeight = 70, laneHeight = 0, lanePadding = 0;
                     if (currentState.showAllGuesses) {
                         const layout = getLaneLayout(totalGuessers);
@@ -572,6 +599,7 @@
                             guessLanesHTML += `<div class="guess-bar" style="left:${left}%; width:${width}%; top:${top}px; height:${laneHeight - 4}px; background:#aaa; pointer-events:none;">${players[uid].name}</div>`;
                         }
                     }
+
                     const initialWidth = barWidthPercent(selectedType);
                     const initialLeft = barLeftPercent(guessCenter, selectedType);
                     let currentBarStyle = '';
@@ -581,14 +609,17 @@
                     } else {
                         currentBarStyle = `top:8px; bottom:8px;`;
                     }
+
                     html += buildRulerHTML(
                         `<div id="guessBar" class="guess-bar" style="left:${initialLeft}%; width:${initialWidth}%; ${currentBarStyle}">${players[myUid].name}</div>`,
                         guessLanesHTML, rulerHeight
                     );
                     html += `<div style="text-align:center; margin-top:10px;"><button id="placeBarBtn">✅ Place Bar</button></div></div>`;
                     container.innerHTML = html;
+
                     const barEl = document.getElementById('guessBar');
                     const typeBtns = document.querySelectorAll('.bar-type-btn');
+
                     function updateBarDisplay() {
                         const width = barWidthPercent(selectedType);
                         let left = barLeftPercent(guessCenter, selectedType);
@@ -596,6 +627,7 @@
                         barEl.style.width = width + '%'; barEl.style.left = left + '%';
                         barEl.textContent = players[myUid].name;
                     }
+
                     function onBarDrag(leftPercent) {
                         const widthPercent = parseFloat(barEl.style.width);
                         const centerPercent = leftPercent + widthPercent / 2;
@@ -604,7 +636,9 @@
                         guessCenter = newCenter;
                         updateBarDisplay();
                     }
+
                     makeDraggable(barEl, onBarDrag);
+
                     typeBtns.forEach(btn => {
                         btn.addEventListener('click', () => {
                             typeBtns.forEach(b => b.classList.remove('selected'));
@@ -613,6 +647,7 @@
                             updateBarDisplay();
                         });
                     });
+
                     document.getElementById('placeBarBtn').addEventListener('click', () => {
                         const range = computeBarRange(guessCenter, selectedType);
                         roomRef.child('guesses').child(myUid).set({
@@ -620,14 +655,36 @@
                             rangeStart: range.start, rangeEnd: range.end
                         });
                         roomRef.child('currentGuesserStep').set(step + 1);
-                        if (step + 1 >= guessQueue.length) roomRef.child('phase').set('reveal');
+                        if (step + 1 >= guessQueue.length) {
+                            // All guesses placed: calculate scores, update them, and move to reveal
+                            const allGuesses = currentState.guesses || {};
+                            const secret = currentState.secretLine || 3.0;
+                            const scoreUpdates = {};
+                            guessQueue.forEach(uid => {
+                                const g = allGuesses[uid];
+                                if (!g) return;
+                                const hit = isHit(secret, g.rangeStart, g.rangeEnd);
+                                const pts = hit ? BAR_POINTS[g.barType] : 0;
+                                const oldScore = players[uid] ? players[uid].score : 0;
+                                scoreUpdates[`players/${uid}/score`] = oldScore + pts;
+                            });
+                            const newRound = (currentState.roundCount || 0) + 1;
+                            scoreUpdates['roundCount'] = newRound;
+                            scoreUpdates['phase'] = 'reveal';
+                            roomRef.update(scoreUpdates);
+                        }
                     });
                 } else {
                     html += `<p class="message">Waiting for ${players[currentGuesserUid].name} to place their guess...</p>`;
                     container.innerHTML = html;
                 }
             } else {
-                roomRef.child('phase').set('reveal');
+                // This case shouldn't happen anymore because we move to reveal via score update,
+                // but keep as fallback
+                if (currentState.guessQueue && currentState.guessQueue.length > 0) {
+                    // All guesses already placed, just set phase to reveal (scores were already updated)
+                    roomRef.child('phase').set('reveal');
+                }
             }
             return;
         }
@@ -635,9 +692,9 @@
         if (phase === 'reveal') {
             const guessQueue = currentState.guessQueue;
             const guesses = currentState.guesses || {};
-            const answererUid = playerOrder[currentState.currentAnswererIndex];
             const totalGuessers = guessQueue.length;
             const colors = ['#fc8181','#68d391','#63b3ed','#f6ad55','#b794f4','#fbb6ce','#4fd1c5','#f6e05e'];
+
             let barsHTML = '', rulerHeight = 70;
             if (currentState.showAllGuesses) {
                 const layout = getLaneLayout(totalGuessers);
@@ -660,12 +717,14 @@
                     barsHTML += `<div class="guess-bar" style="left:${left}%; width:${width}%; background:${color}; pointer-events:none;">${players[uid].name}</div>`;
                 });
             }
+
             const halfWidthPercent = BAR_HALF.short * 22.5;
             const answerLeft = valueToPercent(currentState.secretLine || 3) - halfWidthPercent;
             const answerBarHTML = `<div class="answer-bar" style="left:${answerLeft}%; width:${halfWidthPercent * 2}%; pointer-events:none;"></div>`;
+
             html += `<div class="spectrum-area">
                 <div class="prompt">📋 ${card.prompt}</div>
-                <p style="text-align:center; margin:5px 0;"><strong>Reveal! ${players[answererUid].name}'s line is the red mark.</strong></p>
+                <p style="text-align:center; margin:5px 0;"><strong>Reveal! ${answererName}'s line is the red mark.</strong></p>
                 ${buildRulerHTML(answerBarHTML + barsHTML, null, rulerHeight)}
                 <div style="margin-top:15px;">
             `;
@@ -675,12 +734,22 @@
                 if (!g) return;
                 const hit = isHit(currentState.secretLine, g.rangeStart, g.rangeEnd);
                 const pts = hit ? BAR_POINTS[g.barType] : 0;
-                roundResults += `<div class="result-line"><strong>${players[uid].name}</strong> (${g.barType}): ${hit ? `✅ Hit! +${pts} pt` : '❌ Missed'}</div>`;
+                roundResults += `<div class="result-line"><strong>${players[uid].name}</strong> (${g.barType}): ${hit ? `✅ Hit! +${pts} pt` : '❌ Missed'} (Total: ${players[uid].score})</div>`;
             });
             html += roundResults + `</div></div>`;
-            const winners = playerOrder.filter(uid => (players[uid].score || 0) >= 12);
-            if (winners.length > 0) {
-                html += `<div class="winner-banner">🏆 Winner(s): ${winners.map(uid => players[uid].name).join(', ')} reached 12 points! 🏆</div>`;
+
+            const newRound = currentState.roundCount || 0;
+            if (newRound >= 10) {
+                let maxScore = -1, winnerUids = [];
+                playerOrder.forEach(uid => {
+                    const s = players[uid] ? players[uid].score : 0;
+                    if (s > maxScore) { maxScore = s; winnerUids = [uid]; }
+                    else if (s === maxScore) winnerUids.push(uid);
+                });
+                html += `<div class="winner-banner">
+                    🏆 Game over after 10 rounds!<br>
+                    Winner(s): ${winnerUids.map(uid => players[uid].name).join(', ')} with ${maxScore} points! 🏆
+                </div>`;
                 if (myUid === currentState.host) html += `<button id="newGameBtn">Play Again</button>`;
             } else {
                 if (myUid === currentState.host) html += `<button id="nextRoundBtn">Next Round ▶</button>`;
@@ -691,12 +760,7 @@
                 document.getElementById('nextRoundBtn')?.addEventListener('click', nextRound);
                 document.getElementById('newGameBtn')?.addEventListener('click', resetGame);
             }
-            return;
         }
-
-        // Fallback if unknown phase
-        html += `<p>Unknown phase: ${phase}</p>`;
-        container.innerHTML = html;
     }
 
     // ===== ONLINE ACTIONS =====
@@ -714,7 +778,8 @@
             guessQueue: [],
             currentGuesserStep: 0,
             currentCard: null,
-            deck: deck
+            deck: deck,
+            roundCount: 0
         });
     }
 
