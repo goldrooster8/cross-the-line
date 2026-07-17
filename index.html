@@ -275,7 +275,7 @@
 
 <script>
     // =====================================================================
-    //  YOUR FIREBASE CONFIG (already inserted)
+    //  YOUR FIREBASE CONFIG
     // =====================================================================
     const firebaseConfig = {
         apiKey: "AIzaSyCLknDatwO7p3yEhJCmg9kK4BAIP7P-Kms",
@@ -396,7 +396,7 @@
     let roomId = null;
     let roomRef = null;
     let currentState = null;
-    let playerOrder = [];          // array of UIDs in current game
+    let playerOrder = [];
     let myIndex = -1;
 
     const container = document.getElementById('dynamicContent');
@@ -508,6 +508,15 @@
     // =====================================================================
     //  ROOM SETUP
     // =====================================================================
+    function generateRoomCode() {
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        let code = '';
+        for (let i = 0; i < 5; i++) {
+            code += letters.charAt(Math.floor(Math.random() * letters.length));
+        }
+        return code;
+    }
+
     function renderSetup() {
         container.innerHTML = `
             <div style="text-align:center;">
@@ -526,6 +535,7 @@
         `;
 
         document.getElementById('createRoomBtn').addEventListener('click', () => {
+            const roomCode = generateRoomCode();
             const shuffledDeck = [...CARDS].sort(() => Math.random() - 0.5);
             const roomData = {
                 phase: 'lobby',
@@ -539,12 +549,14 @@
                 currentGuesserStep: 0,
                 showAllGuesses: true,
                 deck: shuffledDeck,
-                roundCount: 0
+                roundCount: 0,
+                roomCode: roomCode
             };
-            const newRoomRef = db.ref('rooms').push(roomData);
-            roomId = newRoomRef.key;
-            roomRef = newRoomRef;
-            enterName();
+            roomRef = db.ref(`rooms/${roomCode}`);
+            roomId = roomCode;
+            roomRef.set(roomData).then(() => {
+                enterName();
+            });
         });
 
         document.getElementById('joinRoomBtn').addEventListener('click', () => {
@@ -619,7 +631,7 @@
 
         if (phase === 'lobby') {
             html += `<div class="spectrum-area" style="text-align:center;">
-                <p>Room code: <span class="room-code">${roomId}</span></p>
+                <p>Room code: <span class="room-code">${currentState.roomCode || roomId}</span></p>
                 <p>Waiting for players...</p>
                 <div class="lobby-player-list">
                     ${playerOrder.map(uid => `<span>${players[uid].name}</span>`).join(' ')}
